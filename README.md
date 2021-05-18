@@ -79,6 +79,18 @@ Name | Service
 'listen-tls' | listens and serves HTTPS/TLS requests
 'shutdown' | gracefully shuts down router
 
+## Get started
+Prerequisite is to have [FunL interpreter](https://github.com/anssihalmeaho/funl) compiled.
+Clone httprouter from Github:
+
+```
+git clone https://github.com/anssihalmeaho/httprouter.git
+```
+
+Put **httprouter.fnl** to some directory which can be found under **FUNLPATH** or in working directory.
+
+See more information: https://github.com/anssihalmeaho/funl/wiki/Importing-modules
+
 ## Example codes
 
 See example HTTP/HTTPS servers using httprouter: https://github.com/anssihalmeaho/httprouter/tree/main/examples
