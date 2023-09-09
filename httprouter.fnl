@@ -1,13 +1,58 @@
 
 ns httprouter
 
-new-router = proc(router)
+new-router = call(proc()
+	wrapper = proc(handler w r params)
+		call(handler w r params)
+	end
+
+	proc(router)
+		call(internal-new-router router wrapper)
+	end
+end)
+
+new-router-v2 = call(proc()
+	wrapper = proc(handler w r params)
+		import stdhttp
+		import stdbytes
+
+		resp = call(handler w r params)
+
+		# get status (if not available, default is 200 OK)
+		has-status status-value = getl(resp 'status'):
+		status = if(has-status status-value 200)
+
+		# fill header
+		has-header header-value = getl(resp 'header'):
+		_ = if(has-header
+			call(stdhttp.add-response-header w header-value)
+			'no header'
+		)
+
+		# get response body
+		has-body body-value = getl(resp 'body'):
+		body = if(has-body
+			body-value
+			call(stdbytes.new list())
+		)
+
+		call(stdhttp.write-response w status body)
+	end
+
+	proc(router)
+		call(internal-new-router router wrapper)
+	end
+end)
+
+internal-new-router = proc(router wrapper)
 	import stdhttp
 
 	mux = call(stdhttp.mux)
 
 	addr = get(router 'addr')
 	routes = get(router 'routes')
+
+	has-err-logger err-logger = getl(router 'error-logger'):
 
 	get-listen = func(listener)
 		proc()
@@ -67,12 +112,16 @@ new-router = proc(router)
 					is-handler-found handler params = call(handler-finder mroute):
 					if( is-handler-found
 						call(proc()
-							rv = try(call(handler w r params) 'HTTP handler made RTE') # todo: plus additional info later
-							if( eq('HTTP handler made RTE' rv)
-								list(false 'server error' 500)
+							ok err val = tryl(call(wrapper handler w r params)):
+							if(ok
 								list(true '' 200)
+								call(proc()
+									_ = if(has-err-logger call(err-logger err) 'no logging')
+									list(false 'server error' 500)
+								end)
 							)
 						end)
+
 						list(false sprintf('route not found (%v)' uri) 404)
 					)
 				end
