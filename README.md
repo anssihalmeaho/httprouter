@@ -28,6 +28,10 @@ Key | Value
 'routes' | routes information (map)
 'cert-file' | certificate file name (string), only with HTTPS/TLS
 'key-file' | key file name (string), only with HTTPS/TLS
+'error-logger' | procedure to be called when HTTP handler makes runtime error (optional)
+
+Error logging procedure gets error description (string) as argument and it can for example print it.
+If error logger is not given then it's not called when runtime error happens.
 
 Routes information contains method names and path (as list) mapping to handlers (__proc__):
 
@@ -78,6 +82,20 @@ Name | Service
 'listen' | listens and serves HTTP requests
 'listen-tls' | listens and serves HTTPS/TLS requests
 'shutdown' | gracefully shuts down router
+
+### new-router-v2
+
+Is very similar to **new-router** but assumes that HTTP handler procedure returns map which
+contains status code, header and body for response.
+
+Return **map** may contain:
+
+Key | Value
+--- | -----
+'status' | HTTP status code (int) (optional, 200 by default)
+'header' | map from which name-value pairs are applied to response header (optional)
+'body' | response body (bytearray) (optional, empty bytearray by default)
+
 
 ## Get started
 Prerequisite is to have [FunL interpreter](https://github.com/anssihalmeaho/funl) compiled.

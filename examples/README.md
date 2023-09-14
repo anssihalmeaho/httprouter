@@ -69,6 +69,14 @@ signal received: 2interrupt
 'http: Server closed'
 ```
 
+## Another simple HTTP server example (status code, header and body as return value)
+
+This example (**next_http_server.fnl**) is similar to previous one but difference is that router is created with new procedure **new-router-v2**.
+With this router HTTP handlers are assumed to return map which contains status code, header and body which are applied to HTTP response.
+So no separate calls for writing those to response are used (in this sense it's more _functional_ approach).
+
+In this example it's also shown how **error logger** can be given to router (logger is called when HTTP handler makes runtime error).
+
 
 ## Simple HTTPS server example
 
